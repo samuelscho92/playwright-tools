@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PlaywrightHomePage } from './pages/PlaywrightHomePage';
+import { PlaywrightHomePage } from '../pages/PlaywrightHomePage';
 
 /**
  * Snapshot test suite for https://playwright.dev/

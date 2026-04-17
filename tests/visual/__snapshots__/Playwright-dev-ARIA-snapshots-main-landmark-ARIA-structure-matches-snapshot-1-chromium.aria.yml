@@ -8,12 +8,12 @@
   - paragraph: Token-efficient browser automation for coding agents like Claude Code and GitHub Copilot. Skill-based workflows without large context overhead.
   - code: npm i -g @playwright/cli@latest
   - link "CLI documentation":
-    - /url: https://github.com/microsoft/playwright-cli
+    - /url: /docs/getting-started-cli
   - heading "Playwright MCP" [level=3]
   - paragraph: Model Context Protocol server that gives AI agents full browser control through structured accessibility snapshots.
   - code: npx @playwright/mcp@latest
   - link "MCP documentation":
-    - /url: https://github.com/microsoft/playwright-mcp
+    - /url: /docs/getting-started-mcp
   - heading "Built for testing" [level=2]
   - heading "Auto-wait and web-first assertions" [level=4]
   - paragraph: Playwright waits for elements to be actionable before performing actions. Assertions automatically retry until conditions are met. No artificial timeouts, no flaky tests.

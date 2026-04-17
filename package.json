@@ -11,9 +11,10 @@
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "lint": "eslint tests/",
-    "test:snapshots": "playwright test tests/playwright-home.snapshot.spec.ts --project=chromium",
-    "test:snapshots:update": "playwright test tests/playwright-home.snapshot.spec.ts --project=chromium --update-snapshots",
-    "test:perf": "playwright test tests/playwright-home.perf.spec.ts --project=chromium"
+    "test:e2e": "playwright test tests/e2e/ --project=chromium",
+    "test:visual": "playwright test tests/visual/ --project=chromium",
+    "test:visual:update": "playwright test tests/visual/ --project=chromium --update-snapshots",
+    "test:perf": "playwright test tests/perf/ --project=chromium"
   },
   "repository": {
     "type": "git",
