@@ -41,21 +41,46 @@ export default defineConfig({
   },
 
   projects: [
+    // ─── 1. Auth setup ────────────────────────────────────────────────────────
+    // Runs before the 'authenticated' project. Saves storageState to disk.
+    {
+      name: 'setup',
+      testMatch: '**/auth.setup.ts',
+    },
+
+    // ─── 2. Cross-browser E2E ─────────────────────────────────────────────────
+    // Session tests are excluded — they run under the 'authenticated' project.
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['**/session/**', '**/auth.setup.ts'],
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testIgnore: ['**/session/**', '**/auth.setup.ts'],
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      testIgnore: ['**/session/**', '**/auth.setup.ts'],
     },
     {
       name: 'mobile-chrome',
       use: { ...devices['Pixel 5'] },
+      testIgnore: ['**/session/**', '**/auth.setup.ts'],
+    },
+
+    // ─── 3. Authenticated ─────────────────────────────────────────────────────
+    // Loads persisted session from auth setup. Only picks up tests/session/**
+    {
+      name: 'authenticated',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/state.json',
+      },
+      dependencies: ['setup'],
+      testMatch: '**/session/**/*.spec.ts',
     },
   ],
 });

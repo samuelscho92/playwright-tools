@@ -8,5 +8,8 @@ playwright-report/
 # Playwright temp/cache
 .playwright/
 
+# Auth state — contains sensitive session data, never commit
+playwright/.auth/state.json
+
 # OS
 .DS_Store

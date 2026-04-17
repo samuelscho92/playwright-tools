@@ -14,7 +14,10 @@
     "test:e2e": "playwright test tests/e2e/ --project=chromium",
     "test:visual": "playwright test tests/visual/ --project=chromium",
     "test:visual:update": "playwright test tests/visual/ --project=chromium --update-snapshots",
-    "test:perf": "playwright test tests/perf/ --project=chromium"
+    "test:perf": "playwright test tests/perf/ --project=chromium",
+    "test:api": "playwright test tests/api/ --project=chromium",
+    "test:a11y": "playwright test tests/a11y/ --project=chromium",
+    "test:session": "playwright test --project=setup --project=authenticated"
   },
   "repository": {
     "type": "git",
@@ -29,6 +32,7 @@
   },
   "homepage": "https://github.com/samuelscho92/playwright-tools#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.59.1",
     "@typescript-eslint/parser": "^8.58.2",
     "eslint": "^10.2.0",

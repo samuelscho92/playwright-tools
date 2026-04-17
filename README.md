@@ -1,25 +1,42 @@
 # playwright-tools
 
-A Playwright end-to-end test suite for [playwright.dev](https://playwright.dev), demonstrating best practices for functional, snapshot, and performance testing.
+An enterprise-grade Playwright test suite for [playwright.dev](https://playwright.dev), demonstrating production-ready patterns across six testing disciplines.
 
 ## Stack
 
 - [Playwright](https://playwright.dev) — browser automation & test runner
 - [TypeScript](https://www.typescriptlang.org)
-- [eslint-plugin-playwright](https://github.com/playwright-community/eslint-plugin-playwright) — linting rules enforcing Playwright best practices
+- [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) — accessibility scanning (WCAG 2.1 AA)
+- [eslint-plugin-playwright](https://github.com/playwright-community/eslint-plugin-playwright) — Playwright-specific lint rules
 
 ## Project structure
 
 ```
 tests/
-├── pages/
-│   └── PlaywrightHomePage.ts          # Page Object Model
-├── playwright-home.spec.ts            # Functional tests
-├── playwright-home.snapshot.spec.ts   # Visual & ARIA snapshot tests
-└── playwright-home.perf.spec.ts       # Performance tests
-tests/snapshots/                       # Committed snapshot baselines
-playwright.config.ts
-eslint.config.mjs
+├── pages/                              # Page Object Models
+│   └── PlaywrightHomePage.ts
+├── fixtures/                           # Custom fixtures & auth setup
+│   ├── base.fixture.ts                 # Extended test with homePage fixture
+│   └── auth.setup.ts                   # Persists storageState for session tests
+├── data/                               # Static test data (JSON)
+│   └── booking.json
+├── e2e/                                # Cross-browser functional tests
+│   └── playwright-home.spec.ts
+├── visual/                             # Visual regression + ARIA snapshots
+│   ├── playwright-home.snapshot.spec.ts
+│   └── __snapshots__/                  # Committed baselines
+├── perf/                               # Performance / Core Web Vitals
+│   └── playwright-home.perf.spec.ts
+├── api/                                # REST API + hybrid API+UI
+│   ├── restful-booker.spec.ts
+│   └── hybrid.spec.ts
+├── a11y/                               # Accessibility (axe-core)
+│   └── playwright-home.a11y.spec.ts
+└── session/                            # storageState / auth session
+    └── session.spec.ts
+playwright/.auth/                       # Persisted session state (gitignored)
+.github/workflows/playwright.yml        # CI/CD pipeline
+CLAUDE.md                               # AI agent conventions guide
 ```
 
 ## Getting started
@@ -34,30 +51,67 @@ npx playwright install
 | Command | Description |
 |---|---|
 | `npm test` | Run all tests across all browsers |
-| `npm run test:chromium` | Run all tests in Chromium only |
-| `npm run test:headed` | Run with visible browser window |
-| `npm run test:debug` | Open Playwright Inspector |
-| `npm run test:ui` | Open Playwright UI mode |
-| `npm run test:snapshots` | Run snapshot tests against baseline |
-| `npm run test:snapshots:update` | Regenerate snapshot baselines |
-| `npm run test:perf` | Run performance tests |
-| `npm run report` | Open the last HTML report |
+| `npm run test:e2e` | Functional E2E tests (Chromium) |
+| `npm run test:visual` | Visual + ARIA snapshot tests |
+| `npm run test:visual:update` | Regenerate snapshot baselines |
+| `npm run test:perf` | Performance / Core Web Vitals |
+| `npm run test:api` | REST API + hybrid tests |
+| `npm run test:a11y` | Accessibility (axe-core WCAG 2.1 AA) |
+| `npm run test:session` | Auth/session storageState tests |
+| `npm run test:headed` | Run with visible browser |
+| `npm run test:debug` | Playwright Inspector |
+| `npm run test:ui` | Playwright UI mode |
+| `npm run report` | Open HTML report |
 | `npm run lint` | Lint test files |
 
 ## Test suites
 
-### Functional (`playwright-home.spec.ts`)
-Core behaviour tests: page title, hero content, navigation links, CTA routing, search, meta tags, and mobile layout.
+### 1. Enterprise UI Framework (`tests/e2e/`)
+Functional tests using the **Page Object Model** and **custom Playwright Fixtures**.
 
-### Snapshot (`playwright-home.snapshot.spec.ts`)
-Two strategies:
-- **Visual** (`toHaveScreenshot`) — pixel diffs of the full page, navbar, and hero at desktop / tablet / mobile viewports
-- **ARIA** (`toMatchAriaSnapshot`) — semantic structure of the navbar, hero heading, and `<main>` landmark
+- `test` is imported from `tests/fixtures/base.fixture.ts` which auto-injects a pre-navigated `homePage` object — no boilerplate navigation in every test
+- Tests run across **4 browser projects**: Chromium, Firefox, WebKit, Mobile Chrome
 
-Baseline images live in `tests/snapshots/` and are committed to source control. Regenerate them after intentional UI changes with `npm run test:snapshots:update`.
+### 2. Hybrid UI & API (`tests/api/`)
+Combines Playwright's `request` fixture for API calls with `page` for UI verification.
 
-### Performance (`playwright-home.perf.spec.ts`)
-Measures real browser timings using the Navigation Timing, Paint Timing, and PerformanceObserver APIs:
+- `restful-booker.spec.ts` — full CRUD lifecycle against [Restful Booker](https://restful-booker.herokuapp.com): auth, create, read, update, delete, verify 404
+- `hybrid.spec.ts` — fetches authoritative data from the GitHub API and npm registry, then verifies the same data appears correctly in the UI
+
+### 3. CI/CD Pipeline (`.github/workflows/playwright.yml`)
+GitHub Actions workflow triggered on every push and pull request to `main`:
+
+- Installs Node.js (LTS) and npm dependencies
+- Installs Playwright browsers with OS dependencies
+- Runs the full test suite
+- Uploads the HTML report as a downloadable artifact (30-day retention)
+- Uploads traces on failure (7-day retention)
+
+### 4. Visual & Accessibility Testing
+
+**Visual regression** (`tests/visual/`) — two snapshot strategies:
+- `toHaveScreenshot` — pixel diffs of full page, navbar, hero at desktop / tablet / mobile viewports
+- `toMatchAriaSnapshot` — semantic ARIA tree assertions for nav, heading, and main landmark
+
+Snapshot baselines are committed in `tests/visual/__snapshots__/`. Regenerate after intentional changes with `npm run test:visual:update`.
+
+**Accessibility** (`tests/a11y/`) — axe-core WCAG 2.1 AA scans:
+- Full-page scan
+- Scoped scans on `<nav>` and `<main>` landmarks
+- Heading hierarchy validation
+- Image alt-text audit
+
+### 5. Auth / Session (`tests/session/`)
+Demonstrates Playwright's **storageState** pattern for session reuse:
+
+1. `tests/fixtures/auth.setup.ts` runs first (via the `setup` project dependency), saving `localStorage` + cookies to `playwright/.auth/state.json`
+2. The `authenticated` project loads that state before every session test — no re-login required
+3. Tests verify the persisted data is correctly restored across navigations
+
+In a real app, replace the localStorage demo with a full login flow (form fill → submit → wait for redirect → save state).
+
+### 6. Performance (`tests/perf/`)
+Measures real browser timings via Navigation Timing, Paint Timing, and PerformanceObserver:
 
 | Metric | Threshold |
 |---|---|
@@ -71,23 +125,38 @@ Measures real browser timings using the Navigation Timing, Paint Timing, and Per
 | Resources | < 150 requests |
 | Transfer size | < 5 000 KB |
 
-A slow-3G throttle test (400 kbps, 200 ms RTT) is also included via the Chrome DevTools Protocol.
+Includes a slow-3G throttle test (400 kbps, 200 ms RTT) via Chrome DevTools Protocol.
 
-## Browsers
+## Browser projects
 
-Tests run against four projects by default:
+| Project | Scope |
+|---|---|
+| `chromium` | All tests except session |
+| `firefox` | All tests except session |
+| `webkit` | All tests except session |
+| `mobile-chrome` | All tests except session |
+| `setup` | `auth.setup.ts` only (runs before `authenticated`) |
+| `authenticated` | `tests/session/**` only, loads `playwright/.auth/state.json` |
 
-- Chromium (Desktop Chrome)
-- Firefox
-- WebKit (Desktop Safari)
-- Mobile Chrome (Pixel 5)
+## Timeouts
+
+| Config key | Value | Scope |
+|---|---|---|
+| `timeout` | 60 s | Per test |
+| `expect.timeout` | 10 s | Per assertion retry |
+| `actionTimeout` | 10 s | Per action (click, fill, etc.) |
+| `navigationTimeout` | 30 s | Per navigation |
 
 ## Linting
 
-[eslint-plugin-playwright](https://github.com/playwright-community/eslint-plugin-playwright) is configured with rules that enforce:
+`eslint-plugin-playwright` enforces:
 
 - Web-first assertions (`toBeVisible` over `isVisible`)
-- Locator-based selectors over element handles
-- No hard-coded `waitForTimeout` calls
-- No `force: true` option
+- Locator-based selectors (no element handles)
+- No hard-coded `waitForTimeout`
+- No `force: true`
 - No raw CSS/XPath locators (prefer `getByRole`, `getByText`, etc.)
+
+## AI / MCP
+
+This project includes a [`CLAUDE.md`](./CLAUDE.md) with conventions for AI coding agents. It also documents how to set up the [Playwright MCP server](https://github.com/microsoft/playwright-mcp) for LLM-driven browser control alongside this suite.
