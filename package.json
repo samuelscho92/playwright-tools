@@ -1,0 +1,36 @@
+{
+  "name": "playwright-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "lint": "eslint tests/",
+    "test:snapshots": "playwright test tests/playwright-home.snapshot.spec.ts --project=chromium",
+    "test:snapshots:update": "playwright test tests/playwright-home.snapshot.spec.ts --project=chromium --update-snapshots",
+    "test:perf": "playwright test tests/playwright-home.perf.spec.ts --project=chromium"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelscho92/playwright-tools.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/samuelscho92/playwright-tools/issues"
+  },
+  "homepage": "https://github.com/samuelscho92/playwright-tools#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@typescript-eslint/parser": "^8.58.2",
+    "eslint": "^10.2.0",
+    "eslint-plugin-playwright": "^2.10.1"
+  }
+}

@@ -1,0 +1,23 @@
+- navigation "Main":
+  - link "Playwright logo Playwright":
+    - /url: /
+    - img "Playwright logo"
+    - text: ""
+  - link "Docs":
+    - /url: /docs/intro
+  - link "MCP":
+    - /url: /mcp/introduction
+  - link "CLI":
+    - /url: /agent-cli/introduction
+  - link "API":
+    - /url: /docs/api/class-playwright
+  - button "Node.js"
+  - link "GitHub repository":
+    - /url: https://github.com/microsoft/playwright
+  - link "Discord server":
+    - /url: https://aka.ms/playwright/discord
+  - button "Switch between dark and light mode (currently system mode)"
+  - button "Search (Ctrl+K)":
+    - text: ""
+    - img
+    - text: ""
